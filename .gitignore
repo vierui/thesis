@@ -1,0 +1,55 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.log
+
+# Virtual environments
+.venv
+
+# Project-specific directories
+ressources/
+
+# Documentation and external repositories
+0-docs/
+1-theory/
+2-citi-kms/
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+credentials/
+
+# ML/Research artifacts
+*.ckpt
+*.pt
+*.pth
+*.h5
+*.pkl
+*.joblib
+wandb/
+mlruns/
+.neptune/
