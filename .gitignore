@@ -14,8 +14,13 @@ wheels/
 .venv
 
 # Documentation and external repositories
-0-docs/*
 2-citi-kms/
+0-docs/archives/*
+0-docs/meetings/*
+0-docs/zhaw/*
+0-docs/ressources/*
+0-docs/roadmap/*
+
 
 # OS-specific files
 .DS_Store
