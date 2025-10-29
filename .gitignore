@@ -13,12 +13,8 @@ wheels/
 # Virtual environments
 .venv
 
-# Project-specific directories
-ressources/
-
 # Documentation and external repositories
-0-docs/
-1-theory/
+0-docs/*
 2-citi-kms/
 
 # OS-specific files

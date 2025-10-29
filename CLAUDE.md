@@ -8,8 +8,9 @@ Master's thesis investigating Knowledge Management Systems using RAG (Retrieval-
 
 **Repository Structure:**
 - `src/` - Python source code
-- `0-docs/implementation-log/` - **Implementation tracking and changelog** (NOT in git)
-- `0-docs/` - Research notes, meeting logs (NOT in git)
+- `0-docs/roadmap/` - High-level planning (Gantt, roadmap, proposal) (NOT in git)
+- `0-docs/implementation/` - **Phase-based implementation work aligned with Gantt** (NOT in git)
+- `0-docs/research/` - Generic research materials (papers, notes) (NOT in git)
 - `1-theory/` - Literature and theoretical foundations (NOT in git)
 - `2-citi-kms/` - CITI KMS repositories - read-only reference (NOT in git)
 - `pyproject.toml` - Project config using **uv** for dependency management
@@ -131,44 +132,73 @@ docker-compose restart vllm
 - Version models with clear naming
 - Use `.env` for config (never commit, provide `.env.example`)
 
-## Implementation Logging
+## Implementation Organization
 
-**CRITICAL:** All implementations must be logged in:
+**Structure:** Phase-based folders aligned with Gantt chart timeline
 
-`0-docs/implementation-log/YYYY-MM-implementation.md`
+```
+0-docs/
+├── roadmap/                    # High-level planning (Gantt, roadmap, proposal)
+├── implementation/             # Phase-based implementation work
+│   ├── 000-setup/             # Oct 1-15: Setup & Preparation
+│   ├── 100-literature/        # Oct 15-31: Literature Review
+│   ├── 200-design/            # Nov 1-30: Architecture & Design
+│   ├── 300-citi-baseline/     # Dec 1-23: CITI Baseline & Analysis
+│   ├── 400-optimization/      # Jan 3-31: Optimization Modules
+│   ├── 500-integration/       # Jan 15-Feb 15: Integration & Testing
+│   ├── 600-evaluation/        # Feb 1-28: Experiments & Benchmarks
+│   ├── 700-analysis/          # Feb 15-Mar 1: Results Analysis
+│   └── 800-writing/           # Mar 1-15: Thesis Writing
+└── research/                   # Generic research (papers, notes, not phase-specific)
+```
+
+**Numbering System (Gantt-aligned):**
+- **000-099:** Setup & Preparation (Oct 1-15)
+- **100-199:** Literature Review (Oct 15-31)
+- **200-299:** Design & Architecture (Nov 1-30)
+- **300-399:** Implementation Phase 1 - CITI Baseline (Dec 1-23)
+- **400-499:** Implementation Phase 2 - Optimization Modules (Jan 3-31)
+- **500-599:** Integration & Testing (Jan 15-Feb 15)
+- **600-699:** Evaluation & Experiments (Feb 1-28)
+- **700-799:** Analysis & Discussion (Feb 15-Mar 1)
+- **800-899:** Writing & Finalization (Mar 1-15)
+- **900-999:** Archives & Deprecated
+
+**File Naming Convention:**
+- Format: `[PhaseID][Sequence]-[descriptive-name].md`
+- Examples: `301-citi-setup.md`, `402-pruning.md`, `601-benchmark-design.md`
+- Subfolders: `310-topic/` for multi-file topics (e.g., `310-kms-description/`)
+
+**Implementation Logging:**
+
+**CRITICAL:** Each phase folder contains `README.md` with implementation log.
 
 **AUTOMATIC LOGGING RULE (MUST FOLLOW):**
 
-When Claude completes ANY implementation task (code changes, setup, configuration, bug fixes), Claude MUST immediately update the implementation log BEFORE asking for commit approval.
+When Claude completes ANY implementation task, Claude MUST immediately update the appropriate phase README.md BEFORE asking for commit approval.
 
-**Required format for each entry:**
+**Required format for each log entry in phase README.md:**
 ```markdown
-## YYYY-MM-DD | [Task Name]
+### YYYY-MM-DD | [Task Name] ([File Numbers])
+**What:** Concrete description of what was implemented
 
-### What was implemented
-- Concrete bullet list of changes made
+**Why:** Technical rationale - reason for decisions, problem being solved
 
-### Why (Technical Rationale)
-- Reason for each major decision
-- Problem being solved
+**How:** Technical approach - tools, commands, technologies, step-by-step if complex
 
-### How (Approach)
-- Technical approach taken
-- Tools, commands, technologies used
-- Step-by-step if complex
+**Results:** What worked, performance metrics, issues encountered and resolved
 
-### Results & Observations
-- What worked, what didn't
-- Performance metrics, timing, resource usage
-- Issues encountered and how resolved
+**Decisions:** Key technical decisions, trade-offs, why chosen over alternatives
 
-### Decisions Made
-- Key technical decisions
-- Trade-offs considered
-- Why chosen over alternatives
+**Links:** [[file1.md]], [[file2.md]]
 ```
 
-**Purpose:** Foundation for thesis report writing and technical decision traceability. The implementation log is the PRIMARY source for thesis chapters.
+**Research Organization:**
+- **Phase-specific research:** `0-docs/implementation/[phase]/research/`
+  - Example: CITI-specific docs → `300-citi-baseline/research/`
+- **Generic research:** `0-docs/research/` (papers, general notes, not tied to phases)
+
+**Purpose:** Foundation for thesis report writing and technical decision traceability. Phase-based structure directly maps to thesis chapters and Gantt timeline.
 
 ## Git Workflow
 
