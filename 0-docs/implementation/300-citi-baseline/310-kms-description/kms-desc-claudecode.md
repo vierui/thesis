@@ -2,12 +2,12 @@
 The system is a full-stack knowledge management solution with graph-based RAG capabilities, dual interfaces (user + admin), vector + graph storage, and built-in quality evaluation.
 
 ```
-[Users] → [front-end] ─┐
-                       ├→ [llm-rag-citi API] ← [Milvus Vector DB]
+       [Users] → [front-end] ─┐
+                              ├→ [llm-rag-citi API]  ← [Milvus Vector DB]
 [Admins] → [admin-interface] ─┘          ↓
-                                   [LightRAG Engine] ← [Neo4J/PostgreSQL Graph DB]
-                                          ↓
-                                      [LLM Services]
+                                 [LightRAG Engine]   ← [Neo4J/PostgreSQL Graph DB]
+                                         ↓
+                                   [LLM Services]
                                           
 [ragas-local-implementation] → Evaluation & Testing Loop
 ```

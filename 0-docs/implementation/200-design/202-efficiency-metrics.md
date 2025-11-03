@@ -247,17 +247,6 @@ Goal: 50-70% latency & 40-60% cost reduction while maintaining >90% quality
 
 ---
 
-## 8. Key Success Metrics
-
-- Avg. query latency < **2s**  
-- P95 latency < **4s**  
-- Throughput > **10 QPS**  
-- RAGAS scores > **0.8**  
-- Cost/query ↓ in $ or resource hours  
-- User satisfaction tracking (feedback frontend)
-
----
-
 ## ✅ Recommended First Steps
 
 - Start with **instrumentation** and **baseline profiling**  
