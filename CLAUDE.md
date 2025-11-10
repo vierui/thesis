@@ -15,35 +15,61 @@ Master's thesis investigating Knowledge Management Systems using RAG (Retrieval-
 - `2-citi-kms/` - CITI KMS repositories - read-only reference (NOT in git)
 - `pyproject.toml` - Project config using **uv** for dependency management
 
-## Dual-System Architecture
+## Distributed Multi-Node Architecture
 
-**This project runs on TWO machines connected via Tailscale VPN:**
+**This project runs on MULTIPLE machines connected via Tailscale VPN mesh:**
 
-**Mac (Development Machine - Home/Mobile):**
-- Role: Development, lightweight services, UI
-- Services: Next.js frontend (3000), Flask backend (5000), PostgreSQL (5432)
-- Activities: Code editing, git operations, debugging, hot reload
-- Tailscale IP: `100.64.x.2` (check with `tailscale ip -4`)
+**Mac (Orchestration Machine - Development):**
+- Role: Backend orchestration, frontend UI, development
+- Services: Flask backend (5000), Next.js frontend (3000), PostgreSQL (5432)
+- Activities: Code editing, git operations, orchestrating calls to remote model nodes
+- Tailscale IP: Check with `tailscale ip -4`
+- **Orchestrates all model services running on remote GPU nodes**
 
-**Ubuntu GPU Server (School - 24/7):**
-- Role: Heavy compute, GPU inference, vector storage, document storage
-- Hardware: Intel i7-12700, RTX 4080 16GB, 64GB RAM
-- Services:
-  - vLLM (LLM inference): `100.64.x.1:8000`
-  - Embedding server: `100.64.x.1:8001`
-  - Milvus vector DB: `100.64.x.1:19530`
-- Storage: `~/thesis-data/documents/` - ALL documents stored here
-- Uptime: Always on, accessible remotely via Tailscale
+**Remote GPU Nodes (4 nodes - CITI Infrastructure):**
+
+All nodes connected via Tailscale VPN, accessible via SSH with sudo access.
+
+**Node 1 - vLLM Server:**
+- Service: vLLM serving YannQi/R-4B model
+- Port: `8000` (OpenAI-compatible API)
+- Container: `lkc-vlm-model`
+- GPU: NVIDIA (device 0)
+- Deploy: `cd 2-citi-kms/infra/vlm-model && docker compose up -d`
+
+**Node 2 - LLM Server:**
+- Service: LocalAI with Gemma3-4b-qat
+- Port: `8080`
+- Container: `lkc-llm-model`
+- GPU: NVIDIA (device 0)
+- Deploy: `cd 2-citi-kms/infra/llm-model && docker compose up -d`
+
+**Node 3 - Embedding Server:**
+- Service: BGE-M3 embedding model
+- Port: `1234`
+- Container: `lkc-bge-m3-embedding-service`
+- GPU: NVIDIA (device 0)
+- Deploy: `cd 2-citi-kms/infra/embedding-model && make setup && make up`
+- Note: Clones from separate `bge-ma012` repository
+
+**Node 4 - Vector Database:**
+- Service: Milvus (+ etcd + MinIO)
+- Ports: `19530` (Milvus), `9091` (health), `9000/9001` (MinIO)
+- Containers: `lkc-milvus-standalone`, `lkc-milvus-etcd`, `lkc-milvus-minio`
+- Deploy: `cd 2-citi-kms/infra/milvus && docker compose up -d`
+- Network: Custom bridge `lkc-milvus`
 
 **Connection: Tailscale VPN Mesh**
+- All nodes (Mac + 4 GPU nodes) in same Tailscale network
 - Secure, encrypted, peer-to-peer
-- Survives dynamic IP changes (home WiFi, school network, etc.)
+- Survives dynamic IP changes
 - No exposed ports, firewall-friendly
-- Persistent connection, no manual tunneling
+- Flask on Mac orchestrates calls to all remote services
 
-**Service Distribution Rationale:**
-- Mac: Fast iteration (hot reload), easy debugging, no GPU needed
-- Ubuntu: GPU-bound tasks, heavy I/O, 24/7 availability, document colocation
+**Architecture Rationale:**
+- **Mac**: Development agility, orchestration logic, UI, git operations
+- **Distributed GPU nodes**: Dedicated resources per model, service isolation, no GPU contention
+- **Prototype environment**: No active users, full control for experimentation
 
 ## Strict Workflow Control
 
@@ -68,54 +94,83 @@ uv add <package>           # Add dependency
 uv add --dev <package>     # Add dev dependency
 ```
 
-## Development Workflow - Dual System
+## Development Workflow - Multi-Node System
 
 **Code Changes (Primary: Mac):**
 - Edit code on Mac (VSCode, preferred)
-- Run Flask backend locally on Mac (calls Ubuntu services via Tailscale)
-- Run Next.js frontend locally on Mac
+- Run Flask backend on Mac (orchestrates calls to remote GPU nodes via Tailscale)
+- Run Next.js frontend on Mac
 - Git operations on Mac (commit, push)
-- Ubuntu services restart only if Docker config changes
+- Remote node services restart only if Docker config changes
 
 **Configuration Files:**
 - `.env` files are machine-specific (NOT in git)
-- Mac `.env`: Points to Ubuntu Tailscale IPs (`100.64.x.1:8000`, etc.)
-- Ubuntu `.env`: Contains HuggingFace tokens, local configs
+- Mac `.env`: Points to remote node Tailscale IPs for each service
+  - `LLM_URL=http://<node1-ip>:8000` (vLLM)
+  - `HYDE_LLM_URL=http://<node2-ip>:8080` (LocalAI)
+  - `EMBEDDING_URL=http://<node3-ip>:1234` (BGE-M3)
+  - `MILVUS_URI=http://<node4-ip>:19530` (Milvus)
+- Remote node `.env`: Contains HuggingFace tokens, GPU configs
 - Template: `.env.example` tracked in git (without secrets)
 
 **Running Services:**
 
-*On Mac (daily development):*
+*On Mac (development):*
 ```bash
 # Start local services
-cd ~/Documents/Master/thesis/mac-services
-docker-compose up -d postgres
+cd ~/Documents/Master/thesis/2-citi-kms/llm-rag-citi
+# Start Flask backend (orchestrator)
+python runner.py
 
-# Start Flask + Next.js
-cd ~/Documents/Master/thesis/scripts
-./start-dev.sh  # Starts both, connects to Ubuntu
+# Start frontend (separate terminal)
+cd ~/Documents/Master/thesis/2-citi-kms/front-end
+npm run dev
 ```
 
-*On Ubuntu (typically already running):*
+*On Remote GPU Nodes (via SSH):*
 ```bash
-# Check services status
-ssh ubuntu-gpu
-cd ~/thesis-ml
-docker-compose ps
+# Node 1 - vLLM
+ssh <node1> 'cd /path/to/infra/vlm-model && docker compose up -d'
 
-# Restart if needed
-docker-compose restart vllm
+# Node 2 - LLM
+ssh <node2> 'cd /path/to/infra/llm-model && docker compose up -d'
+
+# Node 3 - Embedding
+ssh <node3> 'cd /path/to/infra/embedding-model && make up'
+
+# Node 4 - Milvus
+ssh <node4> 'cd /path/to/infra/milvus && docker compose up -d'
+
+# Check status on any node
+ssh <node> 'docker ps'
+```
+
+**Quick Deploy All Services:**
+```bash
+# From infra/ directory
+make run-vlm-model
+make run-llm-model
+make run-embedding-model
+make run-milvus
 ```
 
 **Debugging:**
 - Mac services: Local logs, direct terminal output
-- Ubuntu services: `ssh ubuntu-gpu 'docker logs -f vllm'`
-- GPU usage: `ssh ubuntu-gpu 'nvidia-smi'`
-- Network: Test with `curl http://100.64.x.1:8000/health`
+- Remote services: `ssh <node> 'docker logs -f <container-name>'`
+- GPU usage: `ssh <node> 'nvidia-smi'`
+- Network: Test each endpoint:
+  ```bash
+  curl http://<node1-ip>:8000/v1/models  # vLLM
+  curl http://<node2-ip>:8080/v1/models  # LocalAI
+  curl http://<node3-ip>:1234/health     # Embedding
+  curl http://<node4-ip>:9091/healthz    # Milvus
+  ```
 
 **Data Flow:**
-- User uploads doc via frontend (Mac) → Flask API (Mac) → Document saved on Ubuntu → Embedding generated on Ubuntu GPU → Stored in Milvus (Ubuntu)
-- User queries → Flask API (Mac) → Milvus search (Ubuntu) → LLM generation (Ubuntu GPU) → Response streamed to Mac → Frontend displays
+- **Document ingestion**: Frontend (Mac) → Flask API (Mac) → Embedding service (Node 3) → Milvus (Node 4)
+- **Query**: Frontend (Mac) → Flask API (Mac) → Milvus search (Node 4) → LLM generation (Node 1 or 2) → Response streamed to frontend
+- **HyDE**: Flask (Mac) → LocalAI (Node 2) for hypothetical doc → Embedding (Node 3) → Milvus (Node 4)
+- **Orchestration**: All service coordination logic runs on Mac Flask backend
 
 ## Architecture Guidelines
 
@@ -229,13 +284,43 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
 ## CITI KMS Context
 
 Repositories in `2-citi-kms/` are cloned from the CITI organization (https://github.com/CITI-KnowledgeManagementSystem):
-- `llm-rag-citi` - Flask RAG engine
+- `llm-rag-citi` - Flask RAG engine (backend orchestrator)
 - `front-end` - Next.js UI
 - `admin-interface` - Admin dashboard
 - `LightRAG-Implementation` - Graph-based RAG
 - `ragas-local-implementation` - Evaluation framework
+- `infra/` - Infrastructure deployment configs for 4 GPU nodes
 
 **IMPORTANT: These repos are NOT tracked in this thesis git repository** (gitignored). They are actively developed by the organization and may be updated by others.
+
+### CITI KMS Infrastructure Deployment
+
+The `2-citi-kms/infra/` directory contains Docker Compose configurations for deploying model services on remote GPU nodes.
+
+**Directory Structure:**
+```
+infra/
+├── Makefile                    # Orchestration commands for all services
+├── vlm-model/
+│   └── docker-compose.yml      # vLLM (YannQi/R-4B) on port 8000
+├── llm-model/
+│   └── docker-compose.yml      # LocalAI (Gemma3-4b-qat) on port 8080
+├── embedding-model/
+│   ├── Makefile
+│   ├── setup.sh                # Clones bge-ma012 repo
+│   └── bge-ma012/              # BGE-M3 service (cloned, not in git)
+├── milvus/
+│   └── docker-compose.yml      # Milvus + etcd + MinIO on port 19530
+└── postgresql/
+    └── docker-compose.yml      # PostgreSQL (if needed on separate node)
+```
+
+**Deployment Model:**
+- Each service deployed independently on dedicated GPU node
+- All services use NVIDIA runtime with GPU device 0
+- Services communicate via Tailscale VPN mesh
+- Mac Flask backend orchestrates all remote services
+- **Prototype environment**: No active users, full SSH/sudo access for experiments
 
 ### CITI KMS Version Tracking (Manual)
 

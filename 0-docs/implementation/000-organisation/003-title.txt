@@ -1,0 +1,4 @@
+# TITLE
+- Agent-Based Optimization for Hardware-Efficient Large Language Model Pipelines
+- Agentic control to shrink chip requirements
+
