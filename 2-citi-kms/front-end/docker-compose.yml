@@ -1,0 +1,126 @@
+services:
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+        # Pass NEXT_PUBLIC_ variables as build args (required for Next.js build)
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+        NEXT_PUBLIC_CLERK_SIGN_IN_URL: ${NEXT_PUBLIC_CLERK_SIGN_IN_URL}
+        NEXT_PUBLIC_CLERK_SIGN_UP_URL: ${NEXT_PUBLIC_CLERK_SIGN_UP_URL}
+        NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: ${NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL}
+        NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: ${NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL}
+        # NEXT_PUBLIC_LLM_SERVER_URL: ${NEXT_PUBLIC_LLM_SERVER_URL}
+        NEXT_PUBLIC_SERVER_API: ${NEXT_PUBLIC_SERVER_API}
+    image: citi-knowledge-management:latest
+    container_name: citi-nextjs
+    restart: unless-stopped
+
+    # Environment variables from .env file
+    env_file:
+      - .env
+
+    # Additional environment variables
+    environment:
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - PORT=3000
+
+    # Expose port 3000 internally (not to host, only to nginx)
+    expose:
+      - "3000"
+
+    ports:
+      - "3000:3000"
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+    # Networks
+    networks:
+      - citi-network
+      - llm-network
+
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Resource limits (optional, adjust as needed)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: citi-nginx
+    restart: unless-stopped
+
+    # Ports exposed to host
+    ports:
+      - "80:80"      # HTTP
+      - "443:443"    # HTTPS
+
+    # Volume mounts
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-cache:/var/cache/nginx
+      - nginx-logs:/var/log/nginx
+
+    # Depends on Next.js service
+    depends_on:
+      nextjs:
+        condition: service_healthy
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/api/health || http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    # Networks
+    networks:
+      - citi-network
+
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  citi-network:
+    driver: bridge
+    name: citi-network
+  llm-network:
+    external: true
+    name: llm-rag-citi_default
+
+volumes:
+  nginx-cache:
+    name: citi-nginx-cache
+  nginx-logs:
+    name: citi-nginx-logs

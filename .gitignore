@@ -14,7 +14,7 @@ wheels/
 .venv
 
 # Documentation and external repositories
-2-citi-kms/
+2-citi-kms.backup/
 0-docs/archives/*
 0-docs/meetings/*
 0-docs/zhaw/*

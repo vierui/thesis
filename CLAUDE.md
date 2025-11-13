@@ -9,10 +9,11 @@ thesis/ (git tracked → vierui/thesis)
 ├── src/                    # Python code
 ├── 0-docs/implementation/  # Phase-based docs (gitignored, backed up on iCloud)
 ├── pyproject.toml          # uv package manager
-└── 2-citi-kms/             # CITI repos (gitignored, backed up on iCloud)
-    ├── front-end/          # Branch: agentic-optimiz-rui (your experiments)
-    ├── llm-rag-citi/       # Branch: agentic-optimiz-rui (your experiments)
-    └── admin-interface/    # Branch: agentic-optimiz-rui (your experiments)
+├── 2-citi-kms/             # CITI KMS snapshot (tracked in thesis repo)
+│   ├── front-end/          # Next.js frontend
+│   ├── llm-rag-citi/       # Flask backend
+│   └── admin-interface/    # Admin UI
+└── 2-citi-kms.backup/      # Original with .git (gitignored, for reference)
 ```
 
 ## Infrastructure
@@ -39,14 +40,12 @@ uv add <package>       # Add dep
 
 **CITI KMS Work:**
 ```bash
-# Work on experiments
+# Work on CITI code
 cd 2-citi-kms/front-end
-git checkout agentic-optimiz-rui
-# Make changes, commit locally
+# Make changes, commit to thesis repo
 
-# Sync CITI updates
-git checkout main
-git pull origin main
+# Compare with original CITI baseline
+diff -r 2-citi-kms/front-end/ 2-citi-kms.backup/front-end/
 ```
 
 **Run Services:**
@@ -83,18 +82,14 @@ cd 2-citi-kms/front-end && npm run dev
 - Atomic commits with clear messages
 - Reference thesis sections when relevant
 
-## CITI KMS Repos
+## CITI KMS Code
 
-Cloned from https://github.com/CITI-KnowledgeManagementSystem
-- `main` branch = clean CITI baseline (never modify)
-- `agentic-optimiz-rui` branch = your experiments (local commits only)
-- Log CITI versions in implementation logs for reproducibility
+**Snapshot from:** https://github.com/CITI-KnowledgeManagementSystem (Nov 2025)
 
-**Update CITI:**
-```bash
-cd 2-citi-kms/<repo>
-git checkout main && git pull origin main
-```
+- `2-citi-kms/` = Working copy (tracked in thesis, modify freely)
+- `2-citi-kms.backup/` = Original baseline (gitignored, for reference only)
+- **NEVER push changes to CITI's GitHub repos** (no connection anyway)
+- Log CITI baseline version in implementation logs for reproducibility
 
 ## Safety Checklist
 

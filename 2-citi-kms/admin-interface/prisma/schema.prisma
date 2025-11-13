@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ChatBox {
+  id        Int       @id @default(autoincrement())
+  userId    String?
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  deletedAt DateTime?
+  User      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Message   Message[]
+}
+
+model Document {
+  id            Int       @id @default(autoincrement())
+  title         String
+  original_name String
+  topic         String
+  userId        String?
+  file_size     Int
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime?
+  deletedAt     DateTime?
+  User          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vdb           vdb[]
+}
+
+model Message {
+  id        Int       @id @default(autoincrement())
+  chatBoxId Int?
+  userId    String?
+  request   String
+  response  String
+  rating        Int?
+  disliked      Boolean?
+  liked         Boolean?
+  response_time Int?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  deletedAt DateTime?
+  ChatBox   ChatBox?  @relation(fields: [chatBoxId], references: [id])
+  User      User?     @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id         String     @id
+  email      String     @unique
+  username   String
+  first_name String
+  last_name  String
+  img_url    String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime?
+  deletedAt  DateTime?
+  ChatBox    ChatBox[]
+  Document   Document[]
+  Message    Message[]
+}
+
+model vdb {
+  id        Int       @id @default(autoincrement())
+  docId     Int?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  deletedAt DateTime?
+  Document  Document? @relation(fields: [docId], references: [id])
+}

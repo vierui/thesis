@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  llm-model:
+    image: localai/localai:latest-aio-gpu-nvidia-cuda-12
+    container_name: lkc-llm-model
+    runtime: nvidia
+    ports:
+      - "8080:8080"
+    environment:
+      - DEBUG=true
+      - MODELS_PATH=/models
+      - NVIDIA_VISIBLE_DEVICES=0
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    volumes:
+      - ./models:/models
+    command: --cors
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [gpu]
+    restart: unless-stopped
