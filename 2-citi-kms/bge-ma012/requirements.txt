@@ -1,6 +1,0 @@
-fastapi
-pydantic
-FlagEmbedding
-uvicorn  # Added uvicorn, as it's typically used to run FastAPI applications
-torch
-numpy

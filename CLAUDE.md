@@ -6,14 +6,18 @@ Master's thesis investigating Knowledge Management Systems using RAG technology 
 
 ```
 thesis/ (git tracked → vierui/thesis)
-├── src/                    # Python code
-├── 0-docs/implementation/  # Phase-based docs (gitignored, backed up on iCloud)
-├── pyproject.toml          # uv package manager
-├── 2-citi-kms/             # CITI KMS snapshot (tracked in thesis repo)
+├── src/                    # CITI KMS source code (tracked in thesis repo)
 │   ├── front-end/          # Next.js frontend
 │   ├── llm-rag-citi/       # Flask backend
-│   └── admin-interface/    # Admin UI
-└── 2-citi-kms.backup/      # Original with .git (gitignored, for reference)
+│   ├── admin-interface/    # Admin UI
+│   ├── infra/              # Infrastructure configs
+│   └── ...                 # LightRAG, bge-ma012, etc.
+├── docs/                   # Documentation (gitignored, backed up on iCloud)
+│   └── implementation/     # Phase-based work (000-800)
+├── src.backup/             # Original CITI baseline (gitignored, for reference)
+├── pyproject.toml          # uv package manager
+├── CLAUDE.md
+└── README.md
 ```
 
 ## Infrastructure
@@ -21,7 +25,7 @@ thesis/ (git tracked → vierui/thesis)
 **Mac (Dev):** Flask backend (5000), Next.js frontend (3000), git operations
 **4 GPU Nodes (Tailscale VPN):** vLLM (8000), LocalAI (8080), BGE-M3 (1234), Milvus (19530)
 
-Deploy services: `cd 2-citi-kms/infra/<service> && docker compose up -d`
+Deploy services: `cd src/infra/<service> && docker compose up -d`
 
 ## Workflow Rules
 
@@ -40,26 +44,26 @@ uv add <package>       # Add dep
 
 **CITI KMS Work:**
 ```bash
-# Work on CITI code
-cd 2-citi-kms/front-end
+# Work on source code
+cd src/front-end
 # Make changes, commit to thesis repo
 
 # Compare with original CITI baseline
-diff -r 2-citi-kms/front-end/ 2-citi-kms.backup/front-end/
+diff -r src/front-end/ src.backup/front-end/
 ```
 
 **Run Services:**
 ```bash
 # Backend
-cd 2-citi-kms/llm-rag-citi && python runner.py
+cd src/llm-rag-citi && python runner.py
 
 # Frontend
-cd 2-citi-kms/front-end && npm run dev
+cd src/front-end && npm run dev
 ```
 
 ## Implementation Logging
 
-**Phase Structure:** `0-docs/implementation/[000-899]-phase/`
+**Phase Structure:** `docs/implementation/[000-899]-phase/`
 **Each phase has `README.md` with logs**
 
 **REQUIRED: Log after ANY implementation:**
@@ -82,12 +86,12 @@ cd 2-citi-kms/front-end && npm run dev
 - Atomic commits with clear messages
 - Reference thesis sections when relevant
 
-## CITI KMS Code
+## CITI KMS Source Code
 
 **Snapshot from:** https://github.com/CITI-KnowledgeManagementSystem (Nov 2025)
 
-- `2-citi-kms/` = Working copy (tracked in thesis, modify freely)
-- `2-citi-kms.backup/` = Original baseline (gitignored, for reference only)
+- `src/` = CITI KMS working copy (tracked in thesis, modify freely)
+- `src.backup/` = Original CITI baseline (gitignored, for reference only)
 - **NEVER push changes to CITI's GitHub repos** (no connection anyway)
 - Log CITI baseline version in implementation logs for reproducibility
 
@@ -98,4 +102,4 @@ Before commit:
 - ✅ `git diff --staged` - review changes
 - ✅ No secrets (.env, keys, tokens)
 - ✅ No large files (models, datasets)
-- ✅ No gitignored dirs (0-docs/, 2-citi-kms/)
+- ✅ No gitignored dirs (docs/, src.backup/)

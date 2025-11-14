@@ -12,47 +12,49 @@ uv sync                          # Install dependencies
 **Run CITI KMS:**
 ```bash
 # Backend
-cd 2-citi-kms/llm-rag-citi && python runner.py
+cd src/llm-rag-citi && python runner.py
 
 # Frontend (separate terminal)
-cd 2-citi-kms/front-end && npm run dev
+cd src/front-end && npm run dev
 ```
 
 ## Repository Structure
 
 ```
 thesis/
-├── src/                         # Python code
-├── 0-docs/                      # Documentation (gitignored, iCloud backup)
-│   ├── implementation/          # Phase-based work (000-800)
-│   └── README.md                # Doc structure guide
-├── 2-citi-kms/                  # CITI KMS snapshot (tracked in thesis)
+├── src/                         # CITI KMS source code (tracked in thesis)
 │   ├── front-end/               # Next.js UI
 │   ├── llm-rag-citi/            # Flask backend
-│   └── admin-interface/         # Admin UI
-├── 2-citi-kms.backup/           # Original baseline (gitignored, reference)
-├── CLAUDE.md                    # Guide for Claude Code assistant
-└── pyproject.toml               # Python deps (uv)
+│   ├── admin-interface/         # Admin UI
+│   ├── infra/                   # Infrastructure configs
+│   └── ...                      # LightRAG, bge-ma012, etc.
+├── docs/                        # Documentation (gitignored, iCloud backup)
+│   └── implementation/          # Phase-based work (000-800)
+├── src.backup/                  # Original CITI baseline (gitignored, reference)
+├── pyproject.toml               # uv package manager
+├── CLAUDE.md                    # Guide for Claude Code
+└── README.md
 ```
 
 ## Development
 
 **Python:** `uv` package manager (Python ≥3.10.12)
 
-**CITI KMS:** Snapshot from CITI organization (Nov 2025), modify freely in thesis repo
+**CITI KMS:** Snapshot from CITI organization (Nov 2025), modify freely in `src/`
 
 **Infrastructure:** Mac (dev) + 4 GPU nodes (Tailscale VPN) running vLLM, LocalAI, BGE-M3, Milvus
 
 ## Documentation
 
 - **[CLAUDE.md](./CLAUDE.md)** - Development guide for Claude Code
-- **[0-docs/README.md](./0-docs/README.md)** - Documentation structure
-- **[0-docs/implementation/](./0-docs/implementation/)** - Phase-based work logs
+- **[docs/README.md](./docs/README.md)** - Documentation structure
+- **[docs/implementation/](./docs/implementation/)** - Phase-based work logs
 
 ## Git Workflow
 
 **Single repo:** Everything in thesis repo (vierui/thesis)
-- `2-citi-kms/` tracked in thesis (modify freely)
-- `2-citi-kms.backup/` gitignored (original baseline for reference)
+- `src/` tracked (CITI KMS source code - modify freely)
+- `src.backup/` gitignored (original baseline for reference)
+- `docs/` gitignored (backed up on iCloud)
 
 Commit format: `<type>: <subject>` (types: feat, fix, docs, refactor, test, chore)

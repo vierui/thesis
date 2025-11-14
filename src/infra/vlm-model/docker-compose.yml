@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  vlm-model:
+    image: vllm/vllm-openai:latest
+    container_name: lkc-vlm-model
+    runtime: nvidia
+    ports:
+      - "8000:8000"
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
+      - NVIDIA_VISIBLE_DEVICES=0
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    command: --model YannQi/R-4B --trust-remote-code true
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [gpu]
+    restart: unless-stopped

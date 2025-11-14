@@ -1,0 +1,3 @@
+- https://huggingface.co/docs/smolagents/en/examples/rag (Agentic RAG)
+- https://www.leoniemonigatti.com/blog/from-rag-to-agent-memory.html (The Evolution from RAG to Agentic RAG to Agent Memory)
+- 
