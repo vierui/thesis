@@ -39,10 +39,14 @@
             "id": "6f039bf713aef93b",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "docs/100-literature/101-research/papers/paper-analysis.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "paper-analysis"
             }
           },
           {
@@ -117,7 +121,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 252.5
+    "width": 252.5,
+    "collapsed": true
   },
   "right": {
     "id": "b943e38f1c59195e",
@@ -212,18 +217,19 @@
   },
   "active": "6f039bf713aef93b",
   "lastOpenFiles": [
-    "research/coursework/cs229-ml-andrew-ng-2023.pdf",
-    "research/coursework",
+    "src/front-end/node_modules/@img/sharp-linux-ppc64",
+    "src/front-end/node_modules/@img/sharp-linux-arm64",
+    "src/front-end/node_modules/@img/sharp-libvips-linuxmusl-arm64",
+    "src/front-end/node_modules/@img/sharp-libvips-linux-x64",
+    "src/front-end/node_modules/@img/sharp-libvips-linux-s390x",
+    "src/front-end/node_modules/@img/sharp-libvips-linuxmusl-x64",
+    "src/front-end/node_modules/@img/sharp-libvips-linux-riscv64",
+    "src/front-end/node_modules/@img/sharp-libvips-linux-ppc64",
+    "src/front-end/node_modules/@img/sharp-libvips-linux-arm64",
+    "src/front-end/node_modules/@img/sharp-libvips-linux-arm",
+    "src/infra/milvus/volumes/minio/a-bucket/files/wp/7/1/m_0.blk/c4036338-3f18-460d-b25e-5f2edc6588ab/xl.meta.bkp",
+    "docs/100-literature/101-research/divers/rag-stack.jpeg",
     "research/notebooklm/00_prompts.md",
-    "research/reports/M02_thesis-proposal.pptx",
-    "research/reports/~$M02_thesis-proposal.pptx",
-    "research/reports",
-    "research/papers/agents.pdf",
-    "research/notes/meetings.md.sb-43eeb23d-JfV477",
-    "research/lkc-citi/flowchart-reduced.mmd",
-    "research/lkc-citi/flowchart-general.mmd",
-    "research/lkc-citi",
-    "research/papers/2025_06_10_M11301814_Thesis_Final_fixed.pdf",
     "research/notes/ntust-thesis-proposal.md",
     "research/citi/KCL Architecture.md",
     "research/notes/raschka-build-llm-scratch.md",
@@ -243,7 +249,6 @@
     "research/notes/ntust-knowledge.md",
     "research/notes/images/Pasted image 20251012215459.png",
     "research/notes/images/Pasted image 20251012215421.png",
-    "research/notes/Pasted image 20251012215459.png",
     "research/notes/3Blue1Brown-deeplearning.md",
     "research/links.md",
     "research/notes/3Blue1Brown - Deep Learning.md",

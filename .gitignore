@@ -12,6 +12,7 @@ wheels/
 
 # Virtual environments
 .venv
+.lock
 
 # Documentation and external repositories
 src.backup/
