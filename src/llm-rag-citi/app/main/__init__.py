@@ -20,6 +20,12 @@ import threading
 
 from .config import config_by_name
 from .constant.llm import TEMPERATURE, MODEL, N_HYDE_INSTANCE, HYDE_LLM_URL, LLM_URL, MAX_TOKENS
+from .metrics.config import ENABLE_METRICS
+
+# Conditional imports for metrics
+if ENABLE_METRICS:
+    from prometheus_client import generate_latest
+    from .metrics.registry import registry
 
 # embedding_model = SentenceTransformer(EMBEDDING_MODEL, trust_remote_code=True, device='cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -169,6 +175,12 @@ def create_app(config_name:str):
     @app.route('/health')
     def health_check():
         return {"status": "healthy", "environment": config_name}, 200
+
+    # Metrics endpoint (Prometheus format)
+    if ENABLE_METRICS:
+        @app.route('/metrics')
+        def metrics():
+            return generate_latest(registry), 200, {'Content-Type': 'text/plain; charset=utf-8'}
 
     print(f"The app is running in {config_name} environment")
 
