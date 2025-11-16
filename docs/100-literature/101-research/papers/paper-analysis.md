@@ -506,3 +506,4 @@ In short: this paper doesn’t solve your problem, but it gives you **the offici
 You can now position your thesis as:
 
 > “Agentic RAG, but with *hardware- and energy-aware orchestration* grounded in explicit, measurable metrics.”
+
