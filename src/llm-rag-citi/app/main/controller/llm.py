@@ -9,6 +9,9 @@ import json
 from llama_index.core.agent.workflow import AgentStream
 import asyncio
 
+# Metrics
+from ..metrics.collectors import RequestTimer, format_config
+
 def chat_with_llm():
     semaphore.acquire()
     body = request.get_json()
@@ -25,6 +28,10 @@ def chat_with_llm():
     document_ids = body.get('document_ids', None)  # Bisa None atau list of strings
     print(body)
     print(f"hyde: {hyde}, reranking: {reranking}, ultrathink: {ultrathink}")
+
+    # Metrics: format config for labeling and start timing
+    config = format_config(hyde, reranking)
+    metrics_timer = RequestTimer("chat_with_llm", config)
 
     try:
         llm_stream, retrieved_docs, is_thinking = Streaming(
@@ -128,6 +135,11 @@ def chat_with_llm():
                 print(f"Error during streaming: {e}")
                 import traceback
                 traceback.print_exc()
+                # Metrics: record error
+                metrics_timer.record_error()
+            else:
+                # Metrics: record success if no exception occurred
+                metrics_timer.record_success()
             finally:
                 semaphore.release() # Pastikan semaphore dilepas di akhir stream
 
@@ -135,6 +147,8 @@ def chat_with_llm():
 
     except HTTPRequestException as e:
         semaphore.release() # Pastikan semaphore dilepas jika ada error di awal
+        # Metrics: record error
+        metrics_timer.record_error()
         return e.to_response()
 
 
